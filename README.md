@@ -8,7 +8,7 @@
 and proving it against ground truth.*
 
 [![Python](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Tests](https://img.shields.io/badge/tests-11%20passing-1a7d5a)](tests/)
+[![tests](https://github.com/shaswatk45/Veritas/actions/workflows/tests.yml/badge.svg)](https://github.com/shaswatk45/Veritas/actions/workflows/tests.yml)
 [![EconML](https://img.shields.io/badge/EconML-DML%20%7C%20Causal%20Forest-2b5fd0)](https://github.com/py-why/EconML)
 [![DoWhy](https://img.shields.io/badge/DoWhy-graph%20%2B%20refutation-2b5fd0)](https://github.com/py-why/dowhy)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)

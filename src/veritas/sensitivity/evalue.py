@@ -86,32 +86,43 @@ def e_value_from_estimate(
 def simulate_unmeasured_confounder(
     X, t, y, estimator, strengths=None, random_state: int = 42,
 ):
-    """Inject an unmeasured confounder U ~ N(0,1) that shifts both treatment and
-    outcome by ``gamma``, and re-estimate the ATE at each strength.
+    """Erosion curve: how the estimate moves toward the null as an unmeasured
+    confounder aligned with the treatment residual grows in strength.
 
-    ``estimator`` is a callable (X, t, y) -> ate. Returns a list of
-    {gamma, ate} showing how the estimate erodes as hidden confounding grows.
-    Note: here U is *observed* by the estimator to show the correction ceiling;
-    the erosion curve reflects how much a confounder of that strength can move
-    the answer if it were left out.
+    We fit a propensity e(x), form the treatment residual r = t - e (the part of
+    treatment not explained by the measured covariates), and subtract ``gamma * r``
+    from the outcome — i.e. attribute an increasing share of the treatment-outcome
+    association to a hidden confounder — then re-estimate. As gamma grows the
+    adjusted effect erodes monotonically toward zero: the tipping point is where a
+    confounder of that strength would fully explain the result away.
+
+    ``estimator`` is a callable (X, t, y) -> ate. Returns [{gamma, ate}].
     """
     import pandas as pd
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.model_selection import cross_val_predict
 
-    if strengths is None:
-        strengths = [0.0, 0.5, 1.0, 1.5, 2.0, 3.0]
-    rng = np.random.default_rng(random_state)
-    n = len(y)
-    U = rng.normal(size=n)
     Xn = X.to_numpy() if hasattr(X, "to_numpy") else np.asarray(X)
     y = np.asarray(y, dtype=float)
     t = np.asarray(t).astype(int)
 
+    # Out-of-fold propensity -> treatment residual.
+    clf = HistGradientBoostingClassifier(max_iter=150, max_depth=4, random_state=random_state)
+    e = cross_val_predict(clf, Xn, t, cv=3, method="predict_proba")[:, 1]
+    e = np.clip(e, 0.02, 0.98)
+    r = t - e
+
+    cols = list(X.columns) if hasattr(X, "columns") else [f"x{i}" for i in range(Xn.shape[1])]
+    ate0 = estimator(pd.DataFrame(Xn, columns=cols), t, y)
+    if strengths is None:
+        # Sweep the bias from 0 up to ~1.4x the effect (past the tipping point).
+        scale = abs(ate0) / (np.var(r) if np.var(r) > 0 else 1.0)
+        strengths = [round(m, 3) for m in np.linspace(0, 1.4 * scale, 8)]
+
     out = []
     for g in strengths:
-        # A confounder of strength g would have induced this much spurious signal;
-        # subtract its outcome contribution to see the effect net of it.
-        y_adj = y - g * U * (t - t.mean())
-        cols = list(X.columns) if hasattr(X, "columns") else [f"x{i}" for i in range(Xn.shape[1])]
+        y_adj = y - g * r
         ate = estimator(pd.DataFrame(Xn, columns=cols), t, y_adj)
-        out.append({"gamma": float(g), "ate": float(ate)})
+        # Report gamma as the induced bias in outcome units (interpretable).
+        out.append({"gamma": float(g * np.var(r)), "ate": float(ate)})
     return out

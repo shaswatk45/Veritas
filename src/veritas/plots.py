@@ -89,16 +89,31 @@ def benchmark_bar(err_by_estimator: Dict[str, float], title="ATE error vs ground
     return _save(fig, savepath)
 
 
-def sensitivity_plot(curve: List[dict], savepath=None):
-    """ATE as an unmeasured confounder of increasing strength is subtracted."""
-    g = [c["gamma"] for c in curve]
-    a = [c["ate"] for c in curve]
+def sensitivity_plot(ate: float, e_value: float = None, savepath=None):
+    """Bias tipping-point: adjusted effect = estimate − assumed confounding bias.
+
+    Rigorous and monotone — the effect is only explained away once a hidden
+    confounder induces bias equal to the whole estimate (the tipping point). Pairs
+    with the E-value, which says how strong such a confounder must be.
+    """
+    a0 = abs(ate)
+    sign = 1 if ate >= 0 else -1
+    bmax = a0 * 1.4
+    bias = np.linspace(0, bmax, 50)
+    adj = sign * (a0 - bias)
     fig, ax = plt.subplots(figsize=(7.5, 4))
-    ax.plot(g, a, "-o", color="#1f7a5a")
+    ax.plot(bias, adj, color="#2b5fd0", lw=2.5)
     ax.axhline(0, color="#c1443c", ls="--", lw=1.3, label="null effect")
-    ax.set_xlabel("Unmeasured-confounder strength  γ")
-    ax.set_ylabel("Adjusted ATE")
-    ax.set_title("Sensitivity to hidden confounding")
+    ax.axvline(a0, color="#8a93a0", ls=":", lw=1.4)
+    ax.annotate("tipping point", xy=(a0, 0), xytext=(a0, sign * a0 * 0.4),
+                ha="center", fontsize=9, color="#48505f")
+    ax.plot(0, ate, "o", color="#1a7d5a", ms=9, zorder=3)
+    ax.set_xlabel("Assumed unmeasured-confounding bias")
+    ax.set_ylabel("Adjusted effect")
+    title = "Sensitivity to hidden confounding"
+    if e_value:
+        title += f"  (E-value = {e_value:.2f})"
+    ax.set_title(title)
     ax.legend(frameon=False)
     ax.grid(alpha=.25)
     return _save(fig, savepath)

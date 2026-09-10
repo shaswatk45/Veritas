@@ -72,6 +72,13 @@ def main():
         page.write_text(html, encoding="utf-8")
         print(f"wrote {page} ({page.stat().st_size/1024:.1f} KB, self-contained)")
 
+        # Also publish as the GitHub Pages site (docs/index.html).
+        docs = REPO_ROOT / "docs"
+        docs.mkdir(exist_ok=True)
+        (docs / "index.html").write_text(html, encoding="utf-8")
+        (docs / ".nojekyll").write_text("", encoding="utf-8")
+        print(f"wrote {docs/'index.html'} (GitHub Pages site)")
+
 
 if __name__ == "__main__":
     main()

@@ -219,7 +219,8 @@ def run_casestudy(cfg: Config) -> dict:
                       savepath=cfg.figures_dir / "rhc_forest.png")
     plots.overlap_plot(nu.e, data.t, savepath=cfg.figures_dir / "rhc_overlap.png")
     plots.cate_hist(tau, savepath=cfg.figures_dir / "rhc_cate.png")
-    plots.sensitivity_plot(sens, savepath=cfg.figures_dir / "rhc_sensitivity.png")
+    plots.sensitivity_plot(aipw.ate, e_value=ev_point,
+                           savepath=cfg.figures_dir / "rhc_sensitivity.png")
 
     return {
         "name": data.name, "question": RHC_QUESTION, "n": n,

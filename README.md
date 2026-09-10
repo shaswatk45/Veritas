@@ -13,6 +13,10 @@ and proving it against ground truth.*
 [![DoWhy](https://img.shields.io/badge/DoWhy-graph%20%2B%20refutation-2b5fd0)](https://github.com/py-why/dowhy)
 [![License: MIT](https://img.shields.io/badge/license-MIT-black)](LICENSE)
 
+### 🔴 [**Live interactive dashboard → shaswatk45.github.io/Veritas**](https://shaswatk45.github.io/Veritas/)
+
+*Toggle the benchmarks, drag the confounder slider, and read the evidence — no install.*
+
 </div>
 
 ---
@@ -246,11 +250,15 @@ figures, and `veritas_dashboard.html`.
 
 ## The interactive dashboard
 
+**▶ Live: [shaswatk45.github.io/Veritas](https://shaswatk45.github.io/Veritas/)** — the
+project's own interactive site (hosted on GitHub Pages).
+
 `python -m veritas.export_frontend` renders a **single self-contained HTML file**
 (no server, no dependencies) driven by the pipeline's results — an interactive
-benchmark forest plot, the RHC case with propensity overlap, the CATE subgroup
-table, an **E-value sensitivity slider**, the DoWhy refutation checklist, and the
-causal DAG. A live **Streamlit** version is also included:
+benchmark forest plot (synthetic ⇄ IHDP), the RHC case with propensity overlap,
+the CATE subgroup table, an **E-value sensitivity slider** with a bias
+tipping-point, the DoWhy refutation checklist, and the causal DAG. It's published
+to `docs/index.html` for Pages, and a live **Streamlit** version is also included:
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run src\veritas\dashboard\app.py

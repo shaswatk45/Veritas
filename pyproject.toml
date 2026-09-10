@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "veritas"
+version = "0.1.0"
+description = "Causal-inference / real-world-evidence engine: doubly-robust ATE, heterogeneous effects (CATE), sensitivity analysis, and policy learning, validated on ground-truth benchmarks."
+requires-python = ">=3.9"
+dependencies = [
+    "numpy", "pandas", "scikit-learn", "matplotlib", "scipy",
+    "econml", "streamlit", "pyarrow", "requests", "tqdm", "tabulate",
+]
+
+[project.optional-dependencies]
+causal = ["dowhy", "doubleml"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]

@@ -1,0 +1,522 @@
+<title>Veritas Dossier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg:#f3f5f8; --panel:#ffffff; --panel-2:#f7f9fb; --ink:#141821; --ink-soft:#48505f;
+    --ink-faint:#8790a0; --line:#e3e7ee; --line-strong:#cdd4df; --grid:#eceff4;
+    --accent:#2b5fd0; --accent-strong:#1e46a8; --accent-wash:#e7eefb;
+    --naive:#c1443c; --naive-wash:#f8e7e5; --truth:#1a7d5a; --truth-wash:#e2f2ea; --warn:#c2871a;
+    --shadow:0 1px 2px rgba(20,24,33,.05), 0 10px 28px rgba(20,24,33,.06);
+    --serif:"Spectral", Georgia, "Times New Roman", serif;
+    --sans:"Public Sans", system-ui, -apple-system, sans-serif;
+    --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --bg:#0a0d13; --panel:#111621; --panel-2:#0d121b; --ink:#e9edf4; --ink-soft:#a4aebe;
+    --ink-faint:#6a7488; --line:#212836; --line-strong:#323c4e; --grid:#19202c;
+    --accent:#5c83f0; --accent-strong:#89a4f6; --accent-wash:#152239;
+    --naive:#e26a61; --naive-wash:#2c1917; --truth:#41b088; --truth-wash:#13271e; --warn:#d69a34;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.4);
+  }}
+  :root[data-theme="dark"]{
+    --bg:#0a0d13; --panel:#111621; --panel-2:#0d121b; --ink:#e9edf4; --ink-soft:#a4aebe;
+    --ink-faint:#6a7488; --line:#212836; --line-strong:#323c4e; --grid:#19202c;
+    --accent:#5c83f0; --accent-strong:#89a4f6; --accent-wash:#152239;
+    --naive:#e26a61; --naive-wash:#2c1917; --truth:#41b088; --truth-wash:#13271e; --warn:#d69a34;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1060px; margin:0 auto; padding:26px 20px 80px;}
+  .mono{font-family:var(--mono);} .tnum{font-variant-numeric:tabular-nums;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px;}
+  .brand{display:flex; align-items:baseline; gap:11px;}
+  .brand .logo{font-family:var(--serif); font-weight:700; font-size:23px; letter-spacing:.02em;}
+  .brand .logo b{color:var(--accent); font-weight:700;}
+  .brand .tag{font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint);}
+  .theme-btn{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+    background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:7px 13px; cursor:pointer;}
+  .theme-btn:hover{border-color:var(--line-strong); color:var(--ink);}
+
+  header{margin-top:30px;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-strong);}
+  h1{font-family:var(--serif); font-weight:700; font-size:clamp(32px,5.4vw,52px); line-height:1.04; letter-spacing:-.01em; margin:10px 0 0; text-wrap:balance;}
+  h1 em{font-style:italic; color:var(--naive);}
+  .lede{max-width:64ch; color:var(--ink-soft); font-size:16.5px; margin:16px 0 0;}
+  .lede b{color:var(--ink); font-weight:600;}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-top:26px;}
+  @media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:15px 15px 14px; box-shadow:var(--shadow);}
+  .stat .k{font-family:var(--mono); font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-faint);}
+  .stat .v{font-family:var(--serif); font-weight:700; font-size:29px; letter-spacing:-.01em; margin-top:7px; font-variant-numeric:tabular-nums;}
+  .stat .v.bad{color:var(--naive);} .stat .v.good{color:var(--truth);}
+  .stat .s{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+
+  section{margin-top:34px;}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .sec-head .num{font-family:var(--mono); font-size:12px; color:var(--accent); font-weight:600;}
+  .sec-head h2{font-family:var(--serif); font-weight:700; font-size:23px; letter-spacing:-.01em; margin:0;}
+  .sec-head p{margin:0; color:var(--ink-faint); font-size:13px;}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:20px;}
+  .card + .card{margin-top:14px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr;}}
+
+  .toggle{display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--panel);}
+  .toggle button{font-family:var(--mono); font-size:11.5px; letter-spacing:.04em; border:0; background:transparent; color:var(--ink-soft); padding:7px 15px; cursor:pointer;}
+  .toggle button[aria-pressed="true"]{background:var(--accent); color:#fff;}
+
+  svg{display:block; width:100%; height:auto;}
+  .ax text{font-family:var(--mono); font-size:10px; fill:var(--ink-faint);}
+  .ax-title{font-family:var(--mono); font-size:10px; fill:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase;}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+  .legend span{display:inline-flex; align-items:center; gap:7px;}
+  .legend i{width:12px; height:3px; border-radius:2px; display:inline-block;}
+  .caption{font-size:12.5px; color:var(--ink-faint); margin-top:12px; max-width:70ch;}
+  .caption b{color:var(--ink-soft);}
+
+  /* case question banner */
+  .question{border-left:3px solid var(--accent); background:var(--accent-wash); border-radius:0 12px 12px 0; padding:14px 18px;}
+  .question .q{font-family:var(--serif); font-weight:600; font-size:18px; font-style:italic;}
+  .question .meta{font-family:var(--mono); font-size:11.5px; color:var(--ink-soft); margin-top:6px;}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse;}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:13.5px;}
+  th{font-family:var(--mono); font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-faint); font-weight:500;}
+  td.n{font-family:var(--mono); text-align:right; font-variant-numeric:tabular-nums;}
+  tr.hl td{background:var(--truth-wash);}
+
+  /* E-value block */
+  .evalue{display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:center;}
+  @media (max-width:620px){.evalue{grid-template-columns:1fr;}}
+  .evalue .big{font-family:var(--serif); font-weight:700; font-size:56px; color:var(--accent); line-height:1;}
+  .evalue .biglab{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);}
+  .scale{position:relative; height:34px; margin-top:18px;}
+  .scale .track{position:absolute; top:15px; left:0; right:0; height:3px; background:var(--line);}
+  .scale .fill{position:absolute; top:15px; left:0; height:3px; background:var(--accent);}
+  .scale .tick{position:absolute; top:6px; width:1px; height:20px; background:var(--line-strong);}
+  .scale .lab{position:absolute; top:-2px; transform:translateX(-50%); font-family:var(--mono); font-size:9.5px; color:var(--ink-faint);}
+  .scale .mark{position:absolute; top:8px; transform:translateX(-50%); width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--panel);}
+
+  /* sensitivity slider */
+  .sens-controls{display:flex; align-items:center; gap:14px; margin-top:6px; flex-wrap:wrap;}
+  input[type="range"]{-webkit-appearance:none; appearance:none; height:5px; border-radius:999px;
+    background:linear-gradient(var(--accent),var(--accent)) no-repeat, var(--line); background-size:0% 100%; cursor:pointer; flex:1; min-width:180px;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); border:3px solid var(--panel); cursor:pointer;}
+  input[type="range"]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); border:3px solid var(--panel); cursor:pointer;}
+  input[type="range"]:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+  .sens-read{font-family:var(--mono); font-size:13px; color:var(--ink);}
+  .sens-read b{color:var(--truth);} .sens-read b.null{color:var(--naive);}
+
+  /* refutation checklist */
+  .checks{display:grid; gap:10px;}
+  .check{display:flex; align-items:center; gap:13px; padding:13px 15px; border:1px solid var(--line); border-radius:11px; background:var(--panel);}
+  .check .icon{width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-weight:700; flex:none; font-family:var(--mono); font-size:14px;}
+  .check.pass .icon{background:var(--truth-wash); color:var(--truth);}
+  .check.fail .icon{background:var(--naive-wash); color:var(--naive);}
+  .check.na .icon{background:var(--panel-2); color:var(--ink-faint);}
+  .check .body{flex:1;}
+  .check .name{font-weight:600; font-size:14px;}
+  .check .desc{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-top:2px;}
+  .check .val{font-family:var(--mono); font-size:12px; color:var(--ink-soft); text-align:right;}
+
+  /* DAG */
+  .dag{display:flex; align-items:center; justify-content:center; gap:0; padding:12px 0;}
+  .flag{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; padding:3px 8px; border-radius:999px; border:1px solid currentColor;}
+
+  footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--ink-faint); display:flex; flex-wrap:wrap; gap:8px 20px;}
+  footer b{color:var(--ink-soft);}
+  .kbd{font-family:var(--mono); background:var(--panel-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px; font-size:12px;}
+  @media (prefers-reduced-motion:no-preference){ .stat .v,.sens-read b{transition:color .2s;} }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><span class="logo">VERI<b>TAS</b></span><span class="tag">real-world evidence engine</span></div>
+    <button class="theme-btn" id="themeBtn" type="button">◐ theme</button>
+  </div>
+
+  <header>
+    <div class="eyebrow">Observational causal inference · doubly-robust · ground-truth validated</div>
+    <h1>Correlation gives the wrong answer.<br>Sometimes the <em>wrong sign</em>.</h1>
+    <p class="lede">In observational data, treated and untreated groups differ systematically — sicker
+      patients get the aggressive therapy, so a naive comparison makes it look <b>harmful</b> when it
+      isn't (or vice-versa). <b>Veritas</b> recovers the true causal effect anyway: doubly-robust
+      estimation, heterogeneous effects, and an honest accounting of how strong a hidden confounder
+      would have to be to overturn the finding — all proven against benchmarks where the truth is known.</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <section>
+    <div class="sec-head"><span class="num">01</span><h2>Proof on ground truth</h2><p>benchmarks with known effects — estimators judged, not trusted</p>
+      <span style="margin-left:auto" class="toggle" id="benchToggle">
+        <button data-b="synthetic" aria-pressed="true">Synthetic</button>
+        <button data-b="ihdp" aria-pressed="false">IHDP</button>
+      </span>
+    </div>
+    <div class="card">
+      <div id="benchChart"></div>
+      <div class="legend"><span><i style="background:var(--naive)"></i>naive (biased)</span>
+        <span><i style="background:var(--truth)"></i>doubly-robust / adjusted</span>
+        <span><i style="background:var(--ink-faint)"></i>true effect</span></div>
+      <p class="caption" id="benchCaption"></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">02</span><h2>The case: does RHC help or harm?</h2><p>a real observational question, end to end</p></div>
+    <div class="question" id="question"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="card">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px">Naive vs adjusted effect</div>
+        <div id="rhcForest"></div>
+        <p class="caption" id="rhcCaption"></p>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px">Why naive fails — propensity overlap</div>
+        <div id="overlap"></div>
+        <p class="caption">Treated (blue) skew toward high treatment propensity — they were sicker to begin with. Adjustment reweights to compare like with like.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">03</span><h2>Who benefits?</h2><p>heterogeneous effects — the average hides the individuals</p></div>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px">Distribution of individual effects (CATE)</div>
+        <div id="cateChart"></div>
+        <p class="caption" id="cateCaption"></p>
+      </div>
+      <div class="card" style="padding:6px 8px">
+        <table><thead><tr><th>CATE quartile</th><th class="n">n</th><th class="n">effect (pp)</th><th class="n">mortality Rx / no-Rx</th></tr></thead>
+          <tbody id="subgroups"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">04</span><h2>How honest is it?</h2><p>sensitivity to unmeasured confounding — the part most portfolios skip</p></div>
+    <div class="card">
+      <div class="evalue">
+        <div>
+          <div class="big" id="evalBig">—</div>
+          <div class="biglab">E-value (point estimate)</div>
+        </div>
+        <div>
+          <p style="margin:0 0 2px; font-size:14.5px; color:var(--ink-soft)" id="evalText"></p>
+          <div class="scale" id="evalScale"></div>
+        </div>
+      </div>
+      <hr style="border:0; border-top:1px solid var(--line); margin:20px 0">
+      <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px">Erosion under a hidden confounder</div>
+      <div id="sensChart"></div>
+      <div class="sens-controls">
+        <span class="mono" style="font-size:11px; color:var(--ink-faint)">confounder strength γ</span>
+        <input type="range" id="sens" min="0" max="100" value="0">
+        <span class="sens-read" id="sensRead"></span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">05</span><h2>Defending the assumptions</h2><p>DoWhy causal graph + refutation tests</p></div>
+    <div class="grid2">
+      <div class="card">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px">Assumed causal graph</div>
+        <div class="dag" id="dag"></div>
+        <p class="caption">Confounders open a backdoor path between treatment and outcome; adjusting for them (backdoor criterion) identifies the effect. The refutation tests try to break that claim.</p>
+      </div>
+      <div class="card">
+        <div style="font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px">Refutation tests</div>
+        <div class="checks" id="checks"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">06</span><h2>The decision</h2><p>CATE → whom to treat → expected outcome</p></div>
+    <div class="card" style="padding:6px 8px">
+      <table><thead><tr><th>Policy</th><th class="n">treated %</th><th class="n">expected 30-day mortality</th></tr></thead>
+        <tbody id="policy"></tbody></table>
+    </div>
+    <p class="caption" id="policyCaption"></p>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = __VERITAS_DATA__;
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const cssv=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+const fmt=(n,d=0)=>Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const H=DATA.headline, B=DATA.benchmarks, C=DATA.casestudy;
+
+// ---------- headline ----------
+function renderStats(){
+  const cards=[
+    {k:'Naive bias', v:H.naive_bias_x?('×'+fmt(H.naive_bias_x,1)):'—', s:'naive error vs doubly-robust (synthetic)', cls:'bad'},
+    {k:'Doubly-robust accuracy', v:'±'+fmt((H.synthetic_aipw_relerr||0)*100)+'%', s:'AIPW error vs true ATE', cls:'good'},
+  ];
+  if(C){ cards.push({k:'E-value', v:fmt(H.rhc_evalue,2), s:'confounder strength to overturn RHC result'}); }
+  if(H.ihdp_best_pehe!=null){ cards.push({k:'Best CATE (IHDP)', v:'PEHE '+fmt(H.ihdp_best_pehe,2), s:H.ihdp_best_pehe_model}); }
+  else if(C){ cards.push({k:'Dataset', v:fmt(C.n/1000,1)+'K', s:C.name}); }
+  const box=$('#stats'); box.innerHTML='';
+  cards.slice(0,4).forEach(c=>box.appendChild(el('div','stat',
+    `<div class="k">${c.k}</div><div class="v ${c.cls||''}">${c.v}</div><div class="s">${c.s}</div>`)));
+}
+
+// ---------- generic forest ----------
+function drawForest(container, rows, opts){
+  const {refLine=null, refLabel='', xlabel='', W=640}=opts;
+  const m={l:150,r:20,t:10,b:40}, rowH=34, H_=m.t+m.b+rows.length*rowH;
+  const iw=W-m.l-m.r;
+  let vals=[]; rows.forEach(r=>{vals.push(r.ate); if(isFinite(r.ci_low))vals.push(r.ci_low,r.ci_high);});
+  if(refLine!=null)vals.push(refLine);
+  let lo=Math.min(...vals), hi=Math.max(...vals); const pad=(hi-lo)*0.12||1; lo-=pad; hi+=pad;
+  const X=v=>m.l+(v-lo)/(hi-lo)*iw;
+  const grid=cssv('--grid'), line=cssv('--line-strong');
+  let s=`<svg viewBox="0 0 ${W} ${H_}" role="img" aria-label="forest plot">`;
+  // x ticks
+  const ticks=niceTicks(lo,hi,5);
+  ticks.forEach(tk=>{ s+=`<line x1="${X(tk)}" y1="${m.t}" x2="${X(tk)}" y2="${m.t+rows.length*rowH}" stroke="${grid}"/>`;
+    s+=`<text class="ax" x="${X(tk)}" y="${H_-m.b+18}" text-anchor="middle">${fmt(tk,2)}</text>`; });
+  s+=`<text class="ax-title" x="${m.l+iw/2}" y="${H_-4}" text-anchor="middle">${xlabel}</text>`;
+  if(refLine!=null){ s+=`<line x1="${X(refLine)}" y1="${m.t-2}" x2="${X(refLine)}" y2="${m.t+rows.length*rowH+2}" stroke="${cssv('--ink-faint')}" stroke-width="1.4" stroke-dasharray="5 4"/>`;
+    s+=`<text class="ax" x="${X(refLine)}" y="${m.t-3}" text-anchor="middle" fill="${cssv('--ink-faint')}">${refLabel}</text>`; }
+  rows.forEach((r,i)=>{
+    const y=m.t+i*rowH+rowH/2;
+    const col=r.naive?cssv('--naive'):(r.dr?cssv('--truth'):cssv('--accent'));
+    s+=`<text class="ax" x="${m.l-12}" y="${y+3.5}" text-anchor="end" fill="${cssv('--ink')}" style="font-size:12px">${r.name}</text>`;
+    if(isFinite(r.ci_low)) s+=`<line x1="${X(r.ci_low)}" y1="${y}" x2="${X(r.ci_high)}" y2="${y}" stroke="${col}" stroke-width="2"/>`;
+    s+=`<circle cx="${X(r.ate)}" cy="${y}" r="6" fill="${col}"/>`;
+    s+=`<text class="ax" x="${X(r.ate)}" y="${y-10}" text-anchor="middle" fill="${col}" style="font-weight:600">${fmt(r.ate, opts.dp!=null?opts.dp:2)}${opts.suffix||''}</text>`;
+  });
+  s+=`</svg>`; container.innerHTML=s;
+}
+function niceTicks(lo,hi,n){ const span=hi-lo; let step=Math.pow(10,Math.floor(Math.log10(span/n)));
+  const err=span/n/step; if(err>5)step*=10; else if(err>2)step*=5; else if(err>1)step*=2;
+  const out=[]; for(let v=Math.ceil(lo/step)*step; v<=hi; v+=step) out.push(+v.toFixed(6)); return out; }
+
+// ---------- benchmark section ----------
+let benchMode='synthetic';
+function renderBench(){
+  const cap=$('#benchCaption');
+  if(benchMode==='synthetic'){
+    const syn=B.synthetic;
+    const rows=syn.estimators.filter(r=>isFinite(r.ate)).map(r=>({
+      name:r.name.replace(/ \(.*\)/,''), ate:r.ate, ci_low:r.ci_low, ci_high:r.ci_high,
+      naive:/aive/.test(r.name), dr:/AIPW|TMLE|IPW|DML/.test(r.name)}));
+    drawForest($('#benchChart'), rows, {refLine:syn.true_ate, refLabel:'true ATE', xlabel:'Average treatment effect', dp:2});
+    const naive=syn.estimators.find(r=>/aive/.test(r.name)), aipw=syn.estimators.find(r=>/AIPW/.test(r.name));
+    cap.innerHTML=`On synthetic data with a known effect of <b>${fmt(syn.true_ate,2)}</b>, the naive estimate lands at
+      <b>${fmt(naive.ate,2)}</b> (off by ${fmt(naive.rel_error*100)}%) while AIPW recovers <b>${fmt(aipw.ate,2)}</b>
+      (within ${fmt(aipw.rel_error*100)}%). The doubly-robust estimators cluster on the true-effect line; the naive one does not.`;
+  } else {
+    const ih=B.ihdp;
+    if(!ih || !ih.estimators){ $('#benchChart').innerHTML='<p class="caption">IHDP results unavailable in this run.</p>'; cap.innerHTML=''; return; }
+    // error-bar chart: mean |ATE error| per estimator
+    const rows=ih.estimators.map(r=>({name:r.name.replace(/ \(.*\)/,''), val:r.ate_abs_error_mean, naive:/aive/.test(r.name)}));
+    drawBars($('#benchChart'), rows, {xlabel:'mean |ATE error| over '+ih.n_reps+' replications  (lower = better)'});
+    const best=ih.cate&&ih.cate.length?ih.cate.reduce((a,b)=>a.pehe_mean<b.pehe_mean?a:b):null;
+    const naive=ih.estimators.find(r=>/aive/.test(r.name));
+    cap.innerHTML=`Averaged over <b>${ih.n_reps}</b> IHDP replications: the naive estimator's mean error is
+      <b>${fmt(naive.ate_abs_error_mean,2)}</b>${best?`; best CATE model <b>${best.name}</b> reaches PEHE <b>${fmt(best.pehe_mean,2)}</b>`:''}.
+      Doubly-robust estimators cut the error substantially.`;
+  }
+}
+function drawBars(container, rows, opts){
+  const W=640, m={l:150,r:20,t:12,b:44}, rowH=34, H_=m.t+m.b+rows.length*rowH, iw=W-m.l-m.r;
+  const hi=Math.max(...rows.map(r=>r.val))*1.15||1;
+  const X=v=>m.l+v/hi*iw; const grid=cssv('--grid');
+  let s=`<svg viewBox="0 0 ${W} ${H_}" role="img">`;
+  niceTicks(0,hi,5).forEach(tk=>{ s+=`<line x1="${X(tk)}" y1="${m.t}" x2="${X(tk)}" y2="${m.t+rows.length*rowH}" stroke="${grid}"/>`;
+    s+=`<text class="ax" x="${X(tk)}" y="${H_-m.b+18}" text-anchor="middle">${fmt(tk,2)}</text>`; });
+  s+=`<text class="ax-title" x="${m.l+iw/2}" y="${H_-6}" text-anchor="middle">${opts.xlabel}</text>`;
+  rows.forEach((r,i)=>{ const y=m.t+i*rowH+6, col=r.naive?cssv('--naive'):cssv('--truth');
+    s+=`<text class="ax" x="${m.l-12}" y="${y+15}" text-anchor="end" fill="${cssv('--ink')}" style="font-size:12px">${r.name}</text>`;
+    s+=`<rect x="${m.l}" y="${y}" width="${X(r.val)-m.l}" height="20" rx="4" fill="${col}"/>`;
+    s+=`<text class="ax" x="${X(r.val)+6}" y="${y+15}" fill="${cssv('--ink-soft')}">${fmt(r.val,2)}</text>`; });
+  s+=`</svg>`; container.innerHTML=s;
+}
+
+// ---------- histograms ----------
+function drawHist(container, series, opts){
+  // series: [{counts, edges, color, label}]
+  const W=560, m={l:44,r:14,t:12,b:38}, H_=280, iw=W-m.l-m.r, ih=H_-m.t-m.b;
+  const edges=series[0].edges; const nb=series[0].counts.length;
+  let maxc=0; series.forEach(s=>maxc=Math.max(maxc,...s.counts));
+  const x0=edges[0], x1=edges[edges.length-1];
+  const X=v=>m.l+(v-x0)/(x1-x0)*iw, Y=c=>m.t+ih-(c/maxc)*ih;
+  let s=`<svg viewBox="0 0 ${W} ${H_}" role="img">`;
+  s+=`<line x1="${m.l}" y1="${m.t+ih}" x2="${W-m.r}" y2="${m.t+ih}" stroke="${cssv('--line-strong')}"/>`;
+  niceTicks(x0,x1,5).forEach(tk=>{ if(tk<x0||tk>x1)return; s+=`<text class="ax" x="${X(tk)}" y="${m.t+ih+16}" text-anchor="middle">${fmt(tk,2)}</text>`; });
+  if(opts.zero!=null && opts.zero>=x0 && opts.zero<=x1)
+    s+=`<line x1="${X(opts.zero)}" y1="${m.t}" x2="${X(opts.zero)}" y2="${m.t+ih}" stroke="${cssv('--naive')}" stroke-width="1.4" stroke-dasharray="4 4"/>`;
+  if(opts.mark!=null && opts.mark>=x0 && opts.mark<=x1)
+    s+=`<line x1="${X(opts.mark)}" y1="${m.t}" x2="${X(opts.mark)}" y2="${m.t+ih}" stroke="${cssv('--truth')}" stroke-width="1.6"/>`;
+  series.forEach(se=>{ for(let i=0;i<nb;i++){ const xa=X(edges[i]), xb=X(edges[i+1]); const w=Math.max(1,xb-xa-1);
+    s+=`<rect x="${xa}" y="${Y(se.counts[i])}" width="${w}" height="${m.t+ih-Y(se.counts[i])}" fill="${se.color}" opacity="${se.op||.75}"/>`; } });
+  s+=`<text class="ax-title" x="${m.l+iw/2}" y="${H_-2}" text-anchor="middle">${opts.xlabel||''}</text>`;
+  s+=`</svg>`; container.innerHTML=s;
+}
+
+// ---------- case study ----------
+function renderCase(){
+  if(!C){ document.querySelectorAll('section').forEach((s,i)=>{ if(i>0)s.style.display='none'; }); return; }
+  $('#question').innerHTML=`<div class="q">${C.question}</div>
+    <div class="meta">n=${fmt(C.n)} · ${fmt(C.treated_frac*100)}% catheterized · unadjusted 30-day mortality:
+      RHC ${fmt(C.mortality_treated*100,1)}% vs no-RHC ${fmt(C.mortality_control*100,1)}%</div>`;
+
+  const rows=C.ate.filter(r=>isFinite(r.ate)).map(r=>({name:r.name.replace(/ \(.*\)/,''),
+    ate:r.ate*100, ci_low:r.ci_low*100, ci_high:r.ci_high*100, naive:/aive/.test(r.name), dr:/AIPW|TMLE|IPW|DML/.test(r.name)}));
+  drawForest($('#rhcForest'), rows, {refLine:0, refLabel:'no effect', xlabel:'change in 30-day mortality (pp)', dp:1, suffix:''});
+  const naive=C.ate.find(r=>/aive/.test(r.name)), aipw=C.ate.find(r=>/AIPW/.test(r.name));
+  $('#rhcCaption').innerHTML=`Naive: <b>${fmt(naive.ate*100,1)} pp</b>. Adjusted (AIPW): <b>${fmt(aipw.ate*100,1)} pp</b>.
+    ${aipw.ate>0?'Even after adjustment RHC is associated with <b>higher</b> mortality — the classic Connors finding.':'Adjustment attenuates the effect toward the null.'}`;
+
+  // overlap
+  const oh=C.overlap_hist;
+  drawHist($('#overlap'), [
+    {counts:oh.control.counts, edges:oh.control.edges, color:cssv('--naive'), op:.6},
+    {counts:oh.treated.counts, edges:oh.treated.edges, color:cssv('--accent'), op:.6},
+  ], {xlabel:'estimated propensity P(RHC | X)'});
+
+  // CATE
+  const ch=C.cate_hist;
+  drawHist($('#cateChart'), [{counts:ch.counts, edges:ch.edges, color:cssv('--accent'), op:.8}],
+    {xlabel:'individual effect on mortality (risk difference)', zero:0, mark:C.cate_mean});
+  $('#cateCaption').innerHTML=`Mean effect <b>${fmt(C.cate_mean*100,2)} pp</b> (green line), but effects vary across patients — some are
+    hurt more than others. The red line is zero (no effect).`;
+
+  // subgroups
+  const sg=$('#subgroups'); sg.innerHTML='';
+  C.subgroups.forEach((r,i)=>{ const tr=el('tr', i===3?'hl':'');
+    tr.innerHTML=`<td>${r.quartile}</td><td class="n">${fmt(r.n)}</td>
+      <td class="n" style="color:${r.mean_cate>0?'var(--naive)':'var(--truth)'}">${fmt(r.mean_cate*100,1)}</td>
+      <td class="n">${fmt(r.mortality_rhc*100,0)}% / ${fmt(r.mortality_norhc*100,0)}%</td>`;
+    sg.appendChild(tr); });
+
+  // E-value
+  const ev=C.evalue;
+  $('#evalBig').textContent=fmt(ev.e_value_point,2);
+  $('#evalText').innerHTML=`An unmeasured confounder would need a risk-ratio association of at least
+    <b>${fmt(ev.e_value_point,2)}</b> with <b>both</b> catheterization and mortality — beyond everything already
+    adjusted for — to explain away the effect. The CI-limit E-value is ${fmt(ev.e_value_ci,2)}.`;
+  renderEvalScale(ev.e_value_point);
+
+  // sensitivity
+  renderSens();
+
+  // refutation + DAG
+  renderChecks(); renderDAG();
+
+  // policy
+  const pol=$('#policy'); pol.innerHTML='';
+  const best=C.policy.reduce((a,b)=>a.expected_mortality<b.expected_mortality?a:b);
+  C.policy.forEach(r=>{ const tr=el('tr', r===best?'hl':'');
+    tr.innerHTML=`<td>${r.policy}</td><td class="n">${fmt(r['treated_%'],0)}%</td>
+      <td class="n">${fmt(r.expected_mortality*100,2)}%</td>`; pol.appendChild(tr); });
+  $('#policyCaption').innerHTML=`Expected 30-day mortality under each rule (doubly-robust, lower is better). A CATE-guided
+    rule catheterizes only the patients it estimates would benefit — matching or beating blanket policies.`;
+}
+
+function renderEvalScale(ev){
+  const box=$('#evalScale'); const max=Math.max(4, ev*1.15);
+  const P=v=>v/max*100;
+  let h=`<div class="track"></div><div class="fill" style="width:${P(ev)}%"></div>`;
+  [1,2,3,4,5,6,7,8].filter(t=>t<=max).forEach(t=>{ h+=`<div class="tick" style="left:${P(t)}%"></div><div class="lab" style="left:${P(t)}%">${t}</div>`; });
+  h+=`<div class="mark" style="left:${P(ev)}%"></div>`;
+  box.innerHTML=h;
+}
+
+function renderSens(){
+  const curve=C.sensitivity; // [{gamma, ate}]
+  const W=620, m={l:52,r:16,t:12,b:36}, H_=240, iw=W-m.l-m.r, ih=H_-m.t-m.b;
+  const gs=curve.map(c=>c.gamma), as=curve.map(c=>c.ate);
+  const gmax=Math.max(...gs); let amin=Math.min(0,...as), amax=Math.max(0,...as); const pad=(amax-amin)*0.15||.01; amin-=pad; amax+=pad;
+  const X=g=>m.l+g/gmax*iw, Y=a=>m.t+ih-(a-amin)/(amax-amin)*ih;
+  window.__sensGeom={X,Y,gmax,curve,m,ih,amin,amax};
+  let s=`<svg viewBox="0 0 ${W} ${H_}" id="sensSvg" role="img">`;
+  niceTicks(amin,amax,4).forEach(tk=>{ s+=`<line x1="${m.l}" y1="${Y(tk)}" x2="${W-m.r}" y2="${Y(tk)}" stroke="${cssv('--grid')}"/>`;
+    s+=`<text class="ax" x="${m.l-8}" y="${Y(tk)+3}" text-anchor="end">${fmt(tk*100,1)}</text>`; });
+  s+=`<line x1="${m.l}" y1="${Y(0)}" x2="${W-m.r}" y2="${Y(0)}" stroke="${cssv('--naive')}" stroke-width="1.3" stroke-dasharray="4 4"/>`;
+  gs.forEach(g=> s+=`<text class="ax" x="${X(g)}" y="${H_-m.b+16}" text-anchor="middle">${fmt(g,1)}</text>`);
+  s+=`<text class="ax-title" x="${m.l+iw/2}" y="${H_-2}" text-anchor="middle">γ (confounder strength)</text>`;
+  const path=curve.map((c,i)=>`${i?'L':'M'}${X(c.gamma).toFixed(1)} ${Y(c.ate).toFixed(1)}`).join(' ');
+  s+=`<path d="${path}" fill="none" stroke="${cssv('--accent')}" stroke-width="2.5"/>`;
+  curve.forEach(c=> s+=`<circle cx="${X(c.gamma)}" cy="${Y(c.ate)}" r="3" fill="${cssv('--accent')}"/>`);
+  s+=`<circle id="sensMark" cx="${X(0)}" cy="${Y(curve[0].ate)}" r="6" fill="${cssv('--truth')}" stroke="${cssv('--panel')}" stroke-width="2"/>`;
+  s+=`</svg>`;
+  $('#sensChart').innerHTML=s;
+  updateSens(0);
+}
+function updateSens(pct){
+  const g=window.__sensGeom; if(!g)return;
+  const gamma=pct/100*g.gmax;
+  // interpolate ate
+  const c=g.curve; let ate=c[0].ate;
+  for(let i=0;i<c.length-1;i++){ if(gamma>=c[i].gamma && gamma<=c[i+1].gamma){ const t=(gamma-c[i].gamma)/(c[i+1].gamma-c[i].gamma||1); ate=c[i].ate+t*(c[i+1].ate-c[i].ate); break; } if(gamma>c[c.length-1].gamma)ate=c[c.length-1].ate; }
+  const mk=$('#sensMark'); if(mk){ mk.setAttribute('cx',g.X(gamma)); mk.setAttribute('cy',g.Y(ate)); }
+  const crossed=(c[0].ate>0 && ate<=0)||(c[0].ate<0 && ate>=0);
+  $('#sensRead').innerHTML=`γ=${fmt(gamma,2)} → adjusted effect <b class="${crossed?'null':''}">${fmt(ate*100,2)} pp</b>${crossed?' — explained away':''}`;
+  $('#sens').style.backgroundSize=pct+'% 100%';
+}
+
+function renderChecks(){
+  const box=$('#checks'); box.innerHTML='';
+  const desc={'Placebo treatment':'fake treatment → effect should vanish',
+    'Random common cause':'add noise covariate → effect should hold',
+    'Data subset (80%)':'re-estimate on a subset → effect should hold'};
+  if(!C.refutation||!C.refutation.length){ box.innerHTML='<p class="caption">Refutation tests unavailable in this run.</p>'; return; }
+  C.refutation.forEach(t=>{ const st=t.passed===true?'pass':t.passed===false?'fail':'na';
+    const ic=t.passed===true?'✓':t.passed===false?'✕':'–';
+    const val=('refuted_estimate'in t)?`${fmt(t.estimate,3)} → ${fmt(t.refuted_estimate,3)}`:'';
+    box.appendChild(el('div','check '+st,
+      `<div class="icon">${ic}</div><div class="body"><div class="name">${t.test}</div>
+       <div class="desc">${desc[t.test]||t.expected||''}</div></div><div class="val">${val}</div>`)); });
+}
+
+function renderDAG(){
+  const A=cssv('--accent'), N=cssv('--naive'), T=cssv('--truth'), ink=cssv('--ink');
+  const box=$('#dag');
+  box.innerHTML=`<svg viewBox="0 0 420 150" role="img" aria-label="causal DAG">
+    <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="${cssv('--ink-faint')}"/></marker></defs>
+    <g font-family="var(--mono)" font-size="12" fill="${ink}">
+      <rect x="150" y="8" width="120" height="34" rx="8" fill="${cssv('--panel-2')}" stroke="${cssv('--line-strong')}"/>
+      <text x="210" y="30" text-anchor="middle">Confounders X</text>
+      <rect x="40" y="100" width="120" height="34" rx="8" fill="${cssv('--accent-wash')}" stroke="${A}"/>
+      <text x="100" y="122" text-anchor="middle">Treatment T</text>
+      <rect x="262" y="100" width="120" height="34" rx="8" fill="${cssv('--truth-wash')}" stroke="${T}"/>
+      <text x="322" y="122" text-anchor="middle">Outcome Y</text>
+      <line x1="180" y1="44" x2="110" y2="98" stroke="${cssv('--ink-faint')}" marker-end="url(#ar)"/>
+      <line x1="240" y1="44" x2="312" y2="98" stroke="${cssv('--ink-faint')}" marker-end="url(#ar)"/>
+      <line x1="162" y1="117" x2="260" y2="117" stroke="${A}" stroke-width="2" marker-end="url(#ar)"/>
+    </g></svg>`;
+}
+
+// ---------- interactions ----------
+$('#benchToggle').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b)return;
+  benchMode=b.dataset.b; [...e.currentTarget.children].forEach(x=>x.setAttribute('aria-pressed', String(x===b))); renderBench(); });
+$('#sens').addEventListener('input', e=>updateSens(+e.target.value));
+$('#themeBtn').addEventListener('click', ()=>{ const cur=document.documentElement.getAttribute('data-theme');
+  const dark=cur?cur==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark'); renderAll(); });
+
+function renderFooter(){ $('#footer').innerHTML=`<span><b>Veritas</b> · real-world evidence engine</span>
+  <span>AIPW · TMLE · DML · Causal Forest</span><span>IHDP benchmark · RHC case study</span>
+  <span>DoWhy graph + refutation · E-value</span><span><span class="kbd">python -m veritas.pipeline</span></span>`; }
+
+function renderAll(){ renderStats(); renderBench(); renderCase(); renderFooter(); }
+renderAll();
+</script>
